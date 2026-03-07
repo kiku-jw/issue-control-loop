@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "issue-control-loop"
+version = "0.1.0"
+description = "Turn a GitHub Issue into a deterministic agent control loop."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "KikuAI Lab" }]
+dependencies = []
+
+[project.scripts]
+issue-control-loop = "issue_control_loop.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
