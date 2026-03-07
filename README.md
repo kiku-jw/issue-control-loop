@@ -63,6 +63,46 @@ issue-control-loop shape --text "We need a reusable workflow that turns a GitHub
 - Tiny work should stay light.
 - Public writing should start from a public-safe artifact, not private kitchen.
 
+## Why Projects matter beyond memory
+
+Projects are not only a nicer backlog view.
+
+They give you an operator layer on top of issue-backed agent work:
+
+- one place to see what is ready, blocked, in progress, or waiting for review
+- custom fields such as priority, effort, type, owner, or next decision
+- cross-repo visibility without copying tasks into a second system
+- a clean split between canonical task state (`Issue`) and board state (`Project`)
+
+That matters even more once several agents touch the same product. Chat is still useful for signals. Projects make it obvious what is actually happening.
+
+## Why this is useful from a phone
+
+Once issue + project become canonical, the GitHub app stops being “just notifications.”
+
+It becomes a lightweight control surface:
+
+- open the issue and see the real task context
+- scan the project board to understand what needs attention
+- jump from issue to branch, commit, or PR
+- leave a comment or move a card without opening a laptop
+
+This repo does not depend on GitHub Mobile. But it is built to make phone control sane instead of accidental.
+
+## Where Copilot fits
+
+GitHub itself is moving in the same direction.
+
+As of March 7, 2026, GitHub documents that you can:
+
+- ask Copilot repository, issue, PR, and code questions in GitHub Mobile
+- assign an issue to Copilot from GitHub Mobile
+- customize issue assignment via API with target repo, base branch, custom instructions, custom agent, and model
+
+That does not replace a self-hosted control plane. But it makes GitHub a stronger universal handoff surface for both humans and agents.
+
+See [docs/mobile-control-surface.md](docs/mobile-control-surface.md) for the practical operator pattern.
+
 ## What is intentionally missing
 
 - GitHub API adapter
