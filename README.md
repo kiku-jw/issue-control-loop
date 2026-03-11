@@ -1,6 +1,6 @@
 # issue-control-loop
 
-Turn a GitHub Issue into a clean handoff point between planning, coding, review, and human control.
+Codex skill and deterministic core for turning a GitHub Issue into a clean handoff point between planning, coding, review, and human control.
 
 This repo packages the deterministic core of that loop:
 
@@ -20,8 +20,14 @@ Most agent workflows fail in one of two boring ways:
 
 `issue-control-loop` aims for the middle: keep one issue canonical, keep machine state explicit, and keep the human in the loop without turning every task into paperwork.
 
+As a skill, this repo helps Codex route plain-language requests into an issue-centric workflow instead of making you remember the CLI first.
+
 ## What is in this repo
 
+- `SKILL.md`
+  - Codex skill instructions for when and how to use the repo as a skill
+- `agents/openai.yaml`
+  - skill metadata for UI surfaces
 - `issue_control_loop.control_schema`
   - marker constants
   - parsing and merging helpers for issue body + comment state
