@@ -1,4 +1,4 @@
 interface:
-  display_name: "Issue Control Loop"
-  short_description: "Turn one GitHub issue into a clean human-agent control loop"
-  default_prompt: "Use $issue-control-loop to shape this GitHub issue into a clean control loop with canonical issue state, deterministic PRD intake, and explicit handoff points."
+  display_name: Issue Control Loop
+  short_description: Turn a GitHub issue into a durable human-agent control loop
+  default_prompt: Use $issue-control-loop to turn this task into a GitHub issue workflow with explicit machine state and handoff points.
