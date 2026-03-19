@@ -8,18 +8,31 @@ from dataclasses import dataclass
 from typing import Any
 
 
-OPS_BODY_MARKER_START = "<!-- openclaw-ops-meta:start -->"
-OPS_BODY_MARKER_END = "<!-- openclaw-ops-meta:end -->"
-OPS_STATE_MARKER_START = "<!-- openclaw-ops-state:start -->"
-OPS_STATE_MARKER_END = "<!-- openclaw-ops-state:end -->"
-EXEC_PLAN_MARKER_START = "<!-- openclaw-exec-plan:start -->"
-EXEC_PLAN_MARKER_END = "<!-- openclaw-exec-plan:end -->"
-EXEC_RUN_MARKER_START = "<!-- openclaw-executor-run:start -->"
-EXEC_RUN_MARKER_END = "<!-- openclaw-executor-run:end -->"
-WORKER_MARKER_START = "<!-- openclaw-build-worker:start -->"
-WORKER_MARKER_END = "<!-- openclaw-build-worker:end -->"
-PRD_PACKET_MARKER_START = "<!-- openclaw-prd-packet:start -->"
-PRD_PACKET_MARKER_END = "<!-- openclaw-prd-packet:end -->"
+OPS_BODY_MARKER_START = "<!-- issue-control-meta:start -->"
+OPS_BODY_MARKER_END = "<!-- issue-control-meta:end -->"
+OPS_STATE_MARKER_START = "<!-- issue-control-state:start -->"
+OPS_STATE_MARKER_END = "<!-- issue-control-state:end -->"
+EXEC_PLAN_MARKER_START = "<!-- issue-exec-plan:start -->"
+EXEC_PLAN_MARKER_END = "<!-- issue-exec-plan:end -->"
+EXEC_RUN_MARKER_START = "<!-- issue-exec-run:start -->"
+EXEC_RUN_MARKER_END = "<!-- issue-exec-run:end -->"
+WORKER_MARKER_START = "<!-- issue-build-worker:start -->"
+WORKER_MARKER_END = "<!-- issue-build-worker:end -->"
+PRD_PACKET_MARKER_START = "<!-- issue-prd-packet:start -->"
+PRD_PACKET_MARKER_END = "<!-- issue-prd-packet:end -->"
+
+LEGACY_OPS_BODY_MARKER_START = "<!-- openclaw-ops-meta:start -->"
+LEGACY_OPS_BODY_MARKER_END = "<!-- openclaw-ops-meta:end -->"
+LEGACY_OPS_STATE_MARKER_START = "<!-- openclaw-ops-state:start -->"
+LEGACY_OPS_STATE_MARKER_END = "<!-- openclaw-ops-state:end -->"
+LEGACY_EXEC_PLAN_MARKER_START = "<!-- openclaw-exec-plan:start -->"
+LEGACY_EXEC_PLAN_MARKER_END = "<!-- openclaw-exec-plan:end -->"
+LEGACY_EXEC_RUN_MARKER_START = "<!-- openclaw-executor-run:start -->"
+LEGACY_EXEC_RUN_MARKER_END = "<!-- openclaw-executor-run:end -->"
+LEGACY_WORKER_MARKER_START = "<!-- openclaw-build-worker:start -->"
+LEGACY_WORKER_MARKER_END = "<!-- openclaw-build-worker:end -->"
+LEGACY_PRD_PACKET_MARKER_START = "<!-- openclaw-prd-packet:start -->"
+LEGACY_PRD_PACKET_MARKER_END = "<!-- openclaw-prd-packet:end -->"
 
 
 @dataclass
@@ -28,12 +41,31 @@ class MarkerDefinition:
     start: str
     end: str
     heading: str
+    legacy_pairs: tuple[tuple[str, str], ...] = ()
 
 
 MARKERS = {
-    "ops_state": MarkerDefinition("ops_state", OPS_STATE_MARKER_START, OPS_STATE_MARKER_END, "Control state updated."),
-    "exec_plan": MarkerDefinition("exec_plan", EXEC_PLAN_MARKER_START, EXEC_PLAN_MARKER_END, "Execution plan updated."),
-    "exec_run": MarkerDefinition("exec_run", EXEC_RUN_MARKER_START, EXEC_RUN_MARKER_END, "Executor run updated."),
+    "ops_state": MarkerDefinition(
+        "ops_state",
+        OPS_STATE_MARKER_START,
+        OPS_STATE_MARKER_END,
+        "Control state updated.",
+        ((LEGACY_OPS_STATE_MARKER_START, LEGACY_OPS_STATE_MARKER_END),),
+    ),
+    "exec_plan": MarkerDefinition(
+        "exec_plan",
+        EXEC_PLAN_MARKER_START,
+        EXEC_PLAN_MARKER_END,
+        "Execution plan updated.",
+        ((LEGACY_EXEC_PLAN_MARKER_START, LEGACY_EXEC_PLAN_MARKER_END),),
+    ),
+    "exec_run": MarkerDefinition(
+        "exec_run",
+        EXEC_RUN_MARKER_START,
+        EXEC_RUN_MARKER_END,
+        "Executor run updated.",
+        ((LEGACY_EXEC_RUN_MARKER_START, LEGACY_EXEC_RUN_MARKER_END),),
+    ),
 }
 
 
@@ -80,12 +112,26 @@ def extract_issue_body_meta(body: str) -> dict[str, Any]:
     meta = extract_marker_json(body, start=OPS_BODY_MARKER_START, end=OPS_BODY_MARKER_END)
     if meta:
         return meta
+    meta = extract_marker_json(body, start=LEGACY_OPS_BODY_MARKER_START, end=LEGACY_OPS_BODY_MARKER_END)
+    if meta:
+        return meta
     return extract_scalar_meta(body)
 
 
-def find_marker_comment(comments: list[dict[str, Any]], *, start: str, end: str) -> dict[str, Any] | None:
+def find_marker_comment(
+    comments: list[dict[str, Any]],
+    *,
+    start: str,
+    end: str,
+    legacy_pairs: tuple[tuple[str, str], ...] = (),
+) -> dict[str, Any] | None:
     for comment in reversed(comments):
         payload = extract_marker_json(comment.get("body", ""), start=start, end=end)
+        if payload is None:
+            for legacy_start, legacy_end in legacy_pairs:
+                payload = extract_marker_json(comment.get("body", ""), start=legacy_start, end=legacy_end)
+                if payload is not None:
+                    break
         if payload is None:
             continue
         return {"id": comment.get("id"), "body": comment.get("body", ""), "payload": payload}
@@ -93,13 +139,18 @@ def find_marker_comment(comments: list[dict[str, Any]], *, start: str, end: str)
 
 
 def extract_worker_meta(comments: list[dict[str, Any]]) -> dict[str, Any] | None:
-    found = find_marker_comment(comments, start=WORKER_MARKER_START, end=WORKER_MARKER_END)
+    found = find_marker_comment(
+        comments,
+        start=WORKER_MARKER_START,
+        end=WORKER_MARKER_END,
+        legacy_pairs=((LEGACY_WORKER_MARKER_START, LEGACY_WORKER_MARKER_END),),
+    )
     return found["payload"] if found else None
 
 
 def extract_control_comments(comments: list[dict[str, Any]]) -> dict[str, dict[str, Any] | None]:
     return {
-        kind: find_marker_comment(comments, start=marker.start, end=marker.end)
+        kind: find_marker_comment(comments, start=marker.start, end=marker.end, legacy_pairs=marker.legacy_pairs)
         for kind, marker in MARKERS.items()
     }
 

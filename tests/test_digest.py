@@ -35,15 +35,15 @@ def test_comment_ops_state_overrides_issue_body() -> None:
         item,
         issue_body="""Body
 
-<!-- openclaw-ops-meta:start -->
+<!-- issue-control-meta:start -->
 {"state":"ready","executor":"codex_local"}
-<!-- openclaw-ops-meta:end -->
+<!-- issue-control-meta:end -->
 """,
         comments=[
             {
-                "body": """<!-- openclaw-ops-state:start -->
+                "body": """<!-- issue-control-state:start -->
 {"schemaVersion":1,"state":"awaiting_review","owner":"Nick","updatedAt":"2026-03-07T12:00:00Z"}
-<!-- openclaw-ops-state:end -->"""
+<!-- issue-control-state:end -->"""
             }
         ],
     )

@@ -39,7 +39,7 @@ def test_substantial_prd_prefers_issue_surface_when_github_available() -> None:
     assert result["orderedSteps"][1]["key"] == "create-or-update-issue"
     assert any(step["key"] == "create-or-update-issue" for step in result["orderedSteps"])
     assert result["artifacts"]["issueMarkdown"] is not None
-    assert "openclaw-ops-meta:start" in result["artifacts"]["issueMarkdown"]
+    assert "issue-control-meta:start" in result["artifacts"]["issueMarkdown"]
     assert result["artifacts"]["paths"]["plan"].startswith("docs/plans/")
     assert result["artifacts"]["paths"]["issue"].startswith("docs/issues/")
 
