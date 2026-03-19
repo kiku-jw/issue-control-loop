@@ -7,6 +7,7 @@ This repo packages the deterministic core of that loop:
 - marker-comment control schema
 - PRD intake
 - work shaping
+- ordered execution sequencing
 - task digest classification
 
 It does not hardcode Telegram, local paths, topic ids, or any one deployment stack.
@@ -37,6 +38,9 @@ As a skill, this repo helps Codex route plain-language requests into an issue-ce
 - `issue_control_loop.work_shaping`
   - classify work into tiny vs substantial
   - recommend tracking, brief, review, and publication mode
+- `issue_control_loop.sequence`
+  - turn PRD or rough task input into an ordered execution workflow
+  - choose the execution surface: issue, checked-in docs, or lightweight lane
 - `issue_control_loop.digest`
   - classify project items into ready/in-progress/waiting/review/problem buckets
 
@@ -60,6 +64,32 @@ Shape a task before you over-process it:
 ```bash
 issue-control-loop shape --text "We need a reusable workflow that turns a GitHub issue into an agent control loop." --format markdown
 ```
+
+Build the ordered execution sequence from a PRD or rough task:
+
+```bash
+issue-control-loop sequence --markdown-file examples/prd-example.md --github-mode available --emit artifacts --format markdown
+```
+
+If GitHub is unavailable for the current run:
+
+```bash
+issue-control-loop sequence --text "Refactor auth flow and keep durable local execution docs." --github-mode unavailable --emit artifacts --format markdown
+```
+
+Write the generated issue-first scaffolds into the workspace:
+
+```bash
+issue-control-loop sequence --markdown-file examples/prd-example.md --github-mode available --emit artifacts --write-artifacts --write-root . --format json
+```
+
+This writes:
+
+- issue markdown staging file under `docs/issues/`
+- plan under `docs/plans/`
+- `docs/status.md`
+- `docs/test-plan.md`
+- marker comment files plus `sequence.json` under `.issue-control-loop/<slug>/`
 
 ## Design rules
 

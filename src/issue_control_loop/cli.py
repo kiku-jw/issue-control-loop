@@ -7,13 +7,33 @@ import json
 from pathlib import Path
 
 from .prd import parse_prd_text, render_markdown as render_prd_markdown
+from .sequence import (
+    build_execution_sequence,
+    render_markdown as render_sequence_markdown,
+    write_artifacts as write_sequence_artifacts,
+)
 from .work_shaping import classify_work, render_markdown as render_shape_markdown
+
+GENERIC_HEADINGS = {
+    "objective",
+    "goal",
+    "scope",
+    "constraints",
+    "acceptance criteria",
+    "data contracts",
+    "testing",
+    "open questions",
+    "tasks",
+}
 
 
 def infer_title(body: str) -> str:
     for line in body.splitlines():
         candidate = line.strip().lstrip("#").strip()
+        candidate = candidate.removeprefix("-").strip()
         if candidate:
+            if candidate.lower().rstrip(":") in GENERIC_HEADINGS:
+                continue
             return candidate[:120]
     return "Untitled input"
 
@@ -32,6 +52,16 @@ def build_parser() -> argparse.ArgumentParser:
     shape.add_argument("--text")
     shape.add_argument("--title")
     shape.add_argument("--format", choices=("json", "markdown"), default="json")
+
+    sequence = subparsers.add_parser("sequence", help="Build an ordered execution sequence from PRD or task input")
+    sequence.add_argument("--markdown-file")
+    sequence.add_argument("--text")
+    sequence.add_argument("--title")
+    sequence.add_argument("--github-mode", choices=("available", "existing-issue", "unavailable"), default="available")
+    sequence.add_argument("--emit", choices=("none", "artifacts"), default="none")
+    sequence.add_argument("--write-artifacts", action="store_true")
+    sequence.add_argument("--write-root", default=".")
+    sequence.add_argument("--format", choices=("json", "markdown"), default="json")
 
     return parser
 
@@ -68,6 +98,33 @@ def main() -> None:
         result = classify_work(title=title, body=body, source=source)
         if args.format == "markdown":
             print(render_shape_markdown(result))
+        else:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    if args.command == "sequence":
+        if args.markdown_file:
+            path = Path(args.markdown_file).expanduser().resolve()
+            body = path.read_text(encoding="utf-8")
+            title = args.title or infer_title(body)
+            source = {"type": "markdown_file", "path": str(path)}
+        elif args.text:
+            body = args.text
+            title = args.title or infer_title(body)
+            source = {"type": "text"}
+        else:
+            raise SystemExit("Provide --markdown-file or --text for sequence.")
+
+        result = build_execution_sequence(
+            title=title,
+            body=body,
+            source=source,
+            github_mode=args.github_mode,
+        )
+        if args.write_artifacts:
+            result["writtenArtifacts"] = write_sequence_artifacts(result, root_dir=args.write_root)
+        if args.format == "markdown":
+            print(render_sequence_markdown(result, emit_artifacts=args.emit == "artifacts"))
         else:
             print(json.dumps(result, ensure_ascii=False, indent=2))
         return
