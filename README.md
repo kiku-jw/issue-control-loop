@@ -12,8 +12,17 @@ This repo packages the deterministic core of that loop:
 
 It does not hardcode Telegram, local paths, topic ids, or any one deployment stack.
 
-Primary CTA: install locally, run the tests, then shape or sequence one sample
-task.
+**[Shape a sample issue locally](#quickstart)**
+
+[Docs](#what-is-in-this-repo) · [Examples](#quickstart) · [CLI](#quickstart)
+
+Sample output:
+
+```text
+issue -> shaped brief -> ordered handoff
+```
+
+## Quickstart
 
 ```bash
 python3 -m pip install -e .
