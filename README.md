@@ -12,6 +12,15 @@ This repo packages the deterministic core of that loop:
 
 It does not hardcode Telegram, local paths, topic ids, or any one deployment stack.
 
+Primary CTA: install locally, run the tests, then shape or sequence one sample
+task.
+
+```bash
+python3 -m pip install -e .
+pytest -q
+issue-control-loop shape --text "Turn this GitHub issue into an agent control loop." --format markdown
+```
+
 ## Why this exists
 
 Most agent workflows fail in one of two boring ways:
@@ -90,6 +99,11 @@ This writes:
 - `docs/status.md`
 - `docs/test-plan.md`
 - marker comment files plus `sequence.json` under `.issue-control-loop/<slug>/`
+
+## Expected Output
+
+The CLI emits Markdown or JSON that can become issue text, plan docs, status
+docs, test plans, and marker-comment state. It does not call GitHub by itself.
 
 ## Design rules
 
